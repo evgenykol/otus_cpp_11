@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 3.9)
 project(async VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
 
-configure_file(version.h.in version.h)
-
-add_library(async SHARED async.cpp async.h bulk.cpp bulk.h)
-
 set(CMAKE_CXX_STANDARD 14)
 
-set_target_properties(async
-        PROPERTIES
-                CXX_STANDARD 14
-                CXX_STANDARD_REQUIRED ON
-                CMAKE_CXX_EXTENSIONS OFF
-                COMPILE_OPTIONS -Wpedantic -Wall -Wextra
-)
+configure_file(version.h.in version.h)
+
+add_library(async SHARED async.h async.cpp bulk.h bulk.cpp)
+
+#set_target_properties(async
+#        PROPERTIES
+#                CXX_STANDARD 14
+#                CXX_STANDARD_REQUIRED ON
+#                CMAKE_CXX_EXTENSIONS OFF
+#                COMPILE_OPTIONS -Wpedantic -Wall -Wextra
+#)
 
 #add_executable(async_cli main.cpp)
 #target_link_libraries(async_cli async)
