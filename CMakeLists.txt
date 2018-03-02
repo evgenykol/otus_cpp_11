@@ -5,6 +5,8 @@ configure_file(version.h.in version.h)
 
 add_library(async SHARED async.cpp async.h bulk.cpp bulk.h)
 
+set(CMAKE_CXX_STANDARD 14)
+
 set_target_properties(async
         PROPERTIES
                 CXX_STANDARD 14
