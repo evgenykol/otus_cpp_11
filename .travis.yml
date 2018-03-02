@@ -1,11 +1,11 @@
 language: cpp
-compiler: clang
 sudo: false
 
 # Install dependencies
 addons:
   apt:
     packages:
+      - g++-7
 
 script:
   - cmake .
