@@ -8,6 +8,8 @@
 
 using namespace std;
 
+namespace bulk{
+
 class Commands
 {
 public:
@@ -46,20 +48,23 @@ public:
 class FileDumper : public Observer
 {
 public:
+
     FileDumper(Dumper *dmp);
     void dump(Commands &cmd);
+    string get_unique_number();
 };
 
 
 class BulkContext
 {
+    static constexpr char delimiter = '\n';
     size_t commandsCount;
     Dumper* dumper;
     ConsoleDumper* conDumper;
     FileDumper* fileDumper;
 
     Commands cmds;
-    string line;
+    string input_line_tail;
     int curCounter = 0;
     bool blockFound = false;
     int nestedBlocksCount = 0;
@@ -68,6 +73,9 @@ public:
     BulkContext(size_t bulk_size);
     ~BulkContext();
 
-    void processLine(const char *line, size_t size);
-    void proc();
+    void process_input(const char *line, size_t size);
+    void add_command(string &cmd);
+    void end_input();
 };
+
+}

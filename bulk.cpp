@@ -1,8 +1,7 @@
-
-
 #include "bulk.h"
 
 using namespace std;
+using namespace bulk;
 
 void Commands::push_back(string str)
 {
@@ -77,9 +76,16 @@ FileDumper::FileDumper(Dumper *dmp)
     dmp->subscribe(this);
 }
 
+
+string FileDumper::get_unique_number()
+{
+    static int unique_file_counter = 0;
+    return to_string(++unique_file_counter);
+}
+
 void FileDumper::dump(Commands &cmd)
 {
-    string filename = "bulk" + to_string(cmd.timestamp) + ".log";
+    string filename = "bulk" + to_string(cmd.timestamp) + "_" + get_unique_number() + ".log";
     ofstream of(filename);
 
     bool is_first = true;
@@ -100,11 +106,9 @@ void FileDumper::dump(Commands &cmd)
     of.close();
 }
 
-
-
-
 BulkContext::BulkContext(size_t bulk_size)
 {
+    //cout << "ctor BulkContext" << endl;
     commandsCount = bulk_size;
     dumper = new Dumper();
     conDumper = new ConsoleDumper(dumper);
@@ -113,20 +117,42 @@ BulkContext::BulkContext(size_t bulk_size)
 
 BulkContext::~BulkContext()
 {
+    //cout << "dtor BulkContext" << endl;
     delete dumper;
     delete conDumper;
     delete fileDumper;
 }
 
-void BulkContext::processLine(const char *line, size_t size)
+void BulkContext::process_input(const char *line, size_t size)
 {
-    cout << "processLine: " << line << endl;
-}
-void BulkContext::proc()
-{
-    if((line != "{") && !blockFound)
+    //cout << "processLine: " << line << endl;
+    string cur_line = input_line_tail;
+    input_line_tail.clear();
+
+    for(int i = 0; i < size; ++i)
     {
-        cmds.push_back(line);
+        if(line[i] != delimiter)
+        {
+            cur_line.push_back(line[i]);
+        }
+        else
+        {
+            add_command(cur_line);
+            cur_line.clear();
+        }
+    }
+
+    //Если что-то осталось (не пришла целая команда) - сохраним
+    if(cur_line.size())
+    {
+        input_line_tail = cur_line;
+    }
+}
+void BulkContext::add_command(string &cmd)
+{
+    if((cmd != "{") && !blockFound)
+    {
+        cmds.push_back(cmd);
 
         if(cmds.cmdCounter == commandsCount)
         {
@@ -144,14 +170,14 @@ void BulkContext::proc()
                 dumper->dump_commands(cmds);
                 cmds.clear();
             }
-            //continue;
+            return;
         }
 
-        if(line == "{")
+        if(cmd == "{")
         {
             ++nestedBlocksCount;
         }
-        else if(line == "}")
+        else if(cmd == "}")
         {
             if (nestedBlocksCount > 0)
             {
@@ -166,15 +192,17 @@ void BulkContext::proc()
         }
         else
         {
-            cmds.push_back_block(line);
+            cmds.push_back_block(cmd);
         }
     }
 }
 
-//    if(cmds.cmdCounter)
-//    {
-//        dumper.dump_commands(cmds);
-//    }
-
+void BulkContext::end_input()
+{
+    if(cmds.cmdCounter)
+    {
+        dumper->dump_commands(cmds);
+    }
+}
 
 
