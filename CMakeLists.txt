@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.9)
 
 project(async VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
 
+find_package(Threads)
+
 configure_file(version.h.in version.h)
 
 add_library(async SHARED async.h async.cpp bulk.h bulk.cpp)
@@ -15,6 +17,10 @@ set_target_properties(async
 )
 
 set_target_properties(async PROPERTIES PUBLIC_HEADER async.h)
+
+target_link_libraries(async
+      ${CMAKE_THREAD_LIBS_INIT}
+)
 
 #add_executable(async_cli main.cpp)
 #target_link_libraries(async_cli async)
