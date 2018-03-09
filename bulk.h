@@ -17,6 +17,9 @@ public:
     time_t timestamp;
     int cmdCounter;
 
+    Commands();
+    ~Commands(){}
+
     void push_back(string str);
     void push_back_block(string str);
     void clear();
@@ -65,9 +68,10 @@ class BulkContext
 
     Commands cmds;
     string input_line_tail;
-    int curCounter = 0;
-    bool blockFound = false;
-    int nestedBlocksCount = 0;
+
+    int curCounter;
+    bool blockFound;
+    int nestedBlocksCount;
 
 public:
     BulkContext(size_t bulk_size);

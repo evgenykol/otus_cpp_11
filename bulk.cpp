@@ -3,11 +3,18 @@
 using namespace std;
 using namespace bulk;
 
+Commands::Commands()
+{
+    timestamp = 0;
+    cmdCounter = 0;
+}
+
 void Commands::push_back(string str)
 {
     if(!cmds.size())
     {
         timestamp = time(nullptr);
+        cmdCounter = 0;
     }
     cmds.push_back(str);
     ++cmdCounter;
@@ -110,6 +117,10 @@ BulkContext::BulkContext(size_t bulk_size)
 {
     //cout << "ctor BulkContext" << endl;
     commandsCount = bulk_size;
+    blockFound = false;
+    nestedBlocksCount = 0;
+    curCounter = 0;
+
     dumper = new Dumper();
     conDumper = new ConsoleDumper(dumper);
     fileDumper = new FileDumper(dumper);
